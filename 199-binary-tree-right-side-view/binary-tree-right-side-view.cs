@@ -23,11 +23,11 @@ public class Solution {
             int levelLength = queue.Count;
             for (int i = 0; i < levelLength; i++) {
                 TreeNode currentNode = queue.Dequeue();
-                // Only add the last node of each level to the view
+
                 if (i == levelLength - 1) {
                     view.Add(currentNode.val);
                 }
-                // Add left and right children to the queue
+
                 if (currentNode.left != null) queue.Enqueue(currentNode.left);
                 if (currentNode.right != null) queue.Enqueue(currentNode.right);
             }
