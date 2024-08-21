@@ -13,26 +13,33 @@
  */
 public class Solution {
     public IList<int> RightSideView(TreeNode root) {
-        List<int> view = new List<int>();
-        if (root == null) return view;
+        IList<int> result = new List<int>();
+        if (root == null) {
+            return result;
+        }
 
         Queue<TreeNode> queue = new Queue<TreeNode>();
         queue.Enqueue(root);
 
         while (queue.Count > 0) {
-            int levelLength = queue.Count;
-            for (int i = 0; i < levelLength; i++) {
+            int levelSize = queue.Count;
+            int lastNodeVal = 0;
+
+            for (int i = 0; i < levelSize; i++) {
                 TreeNode currentNode = queue.Dequeue();
+                lastNodeVal = currentNode.val;
 
-                if (i == levelLength - 1) {
-                    view.Add(currentNode.val);
+                if (currentNode.left != null) {
+                    queue.Enqueue(currentNode.left);
                 }
-
-                if (currentNode.left != null) queue.Enqueue(currentNode.left);
-                if (currentNode.right != null) queue.Enqueue(currentNode.right);
+                if (currentNode.right != null) {
+                    queue.Enqueue(currentNode.right);
+                }
             }
+
+            result.Add(lastNodeVal);
         }
 
-        return view;
+        return result;
     }
 }
