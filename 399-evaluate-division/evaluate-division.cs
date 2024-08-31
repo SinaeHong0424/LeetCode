@@ -1,41 +1,60 @@
+using System;
+using System.Collections.Generic;
+
 public class Solution {
     public double[] CalcEquation(IList<IList<string>> equations, double[] values, IList<IList<string>> queries) {
-        var graph = new Dictionary<string, Dictionary<string, double>>();
-
+        Dictionary<string, Dictionary<string, double>> graph = new Dictionary<string, Dictionary<string, double>>();
+        
         for (int i = 0; i < equations.Count; i++) {
-            var equation = equations[i];
-            if (!graph.ContainsKey(equation[0])) {
-                graph[equation[0]] = new Dictionary<string, double>();
+            string A = equations[i][0];
+            string B = equations[i][1];
+            double value = values[i];
+            
+            if (!graph.ContainsKey(A)) {
+                graph[A] = new Dictionary<string, double>();
             }
-            if (!graph.ContainsKey(equation[1])) {
-                graph[equation[1]] = new Dictionary<string, double>();
+            if (!graph.ContainsKey(B)) {
+                graph[B] = new Dictionary<string, double>();
             }
-
-            graph[equation[0]][equation[1]] = values[i];
-            graph[equation[1]][equation[0]] = 1.0 / values[i];
+            
+            graph[A][B] = value;
+            graph[B][A] = 1.0 / value;
         }
-
+        
         double[] results = new double[queries.Count];
-
         for (int i = 0; i < queries.Count; i++) {
-            var query = queries[i];
-            results[i] = DFS(query[0], query[1], graph, new HashSet<string>(), 1.0);
+            string C = queries[i][0];
+            string D = queries[i][1];
+            
+            if (!graph.ContainsKey(C) || !graph.ContainsKey(D)) {
+                results[i] = -1.0;
+            } else if (C == D) {
+                results[i] = 1.0;
+            } else {
+                HashSet<string> visited = new HashSet<string>();
+                results[i] = DFS(graph, C, D, 1.0, visited);
+            }
         }
-
+        
         return results;
     }
 
-    private double DFS(string start, string end, IDictionary<string, Dictionary<string, double>> graph, HashSet<string> visited, double value) {
-        if (!graph.ContainsKey(start)) return -1.0; 
-        if (start == end) return value; 
+    private double DFS(Dictionary<string, Dictionary<string, double>> graph, string start, string end, double product, HashSet<string> visited) {
         visited.Add(start);
-
-        foreach (var neighbor in graph[start]) {
-            if (visited.Contains(neighbor.Key)) continue; 
-            double result = DFS(neighbor.Key, end, graph, visited, value * neighbor.Value);
-            if (result != -1.0) return result; 
+        
+        if (graph[start].ContainsKey(end)) {
+            return product * graph[start][end];
         }
-
-        return -1.0; 
+        
+        foreach (var neighbor in graph[start]) {
+            if (!visited.Contains(neighbor.Key)) {
+                double result = DFS(graph, neighbor.Key, end, product * neighbor.Value, visited);
+                if (result != -1.0) {
+                    return result;
+                }
+            }
+        }
+        
+        return -1.0;
     }
 }
